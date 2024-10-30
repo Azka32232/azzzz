@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "767198093072",
+    "project_id": "aplikasi-berita-9ce6e",
+    "storage_bucket": "aplikasi-berita-9ce6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767198093072:android:f1213cbb2ea0847fc94f95",
+        "android_client_info": {
+          "package_name": "com.portal.berita"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2_RtX9qQ9AKU9GaTEV_P80Rr3c1_Y4Yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
