@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/tabs/recommendation_tab.dart';
 import 'package:myapp/tabs/category_tab.dart';
+import 'package:myapp/tabs/home_tab.dart';
 import 'package:myapp/tabs/profile_tab.dart';
+import 'package:myapp/tabs/recommendation_tab.dart';
 
-class HomeScreen extends StatefulWidget {
+
+class MainmenuScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _MainmenuScreenState createState() => _MainmenuScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _MainmenuScreenState extends State<MainmenuScreen> {
   int _selectedIndex = 0;
-  
+
   final List<Widget> _screens = [
+    HomeTab(),
     RecommendationTab(),
     CategoryTab(),
     ProfileTab(),

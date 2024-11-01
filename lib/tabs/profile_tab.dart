@@ -1,6 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/screens/login_screen.dart';
+import 'package:myapp/services/auth_service.dart';
 
 class ProfileTab extends StatelessWidget {
+  final AuthService? authService;
+
+  const ProfileTab({Key? key, this.authService}) : super(key: key);
+
+  void _logout(BuildContext context) async {
+    try {
+      // Uncomment and implement if using an authentication service
+      // await authService?.signOut();
+
+      // Use Navigator.pushReplacement instead of pushAndRemoveUntil
+      // This ensures a clean transition to the login screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } catch (e) {
+      // Handle logout errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal keluar: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +112,33 @@ class ProfileTab extends StatelessWidget {
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () {
-                // Implementasi logout
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Konfirmasi Keluar'),
+                      content: Text('Apakah Anda yakin ingin keluar?'),
+                      actions: [
+                        TextButton(
+                          child: Text('Batal'),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Tutup dialog
+                          },
+                        ),
+                        ElevatedButton(
+                          child: Text('Keluar'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Tutup dialog
+                            _logout(context); // Panggil method logout
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
             ),
           ],

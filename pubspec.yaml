@@ -41,6 +41,8 @@ dependencies:
   cloud_firestore: ^5.4.4
   shared_preferences_android: ^2.3.3
   form_validator: ^2.1.1
+  mockito: ^5.4.4
+  build_runner: ^2.4.13
 
 dev_dependencies:
   flutter_test:
