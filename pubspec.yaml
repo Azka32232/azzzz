@@ -43,6 +43,7 @@ dependencies:
   form_validator: ^2.1.1
   mockito: ^5.4.4
   build_runner: ^2.4.13
+  dio_interceptor_plus: ^0.0.2
 
 dev_dependencies:
   flutter_test:

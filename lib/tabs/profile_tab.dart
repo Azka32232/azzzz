@@ -2,31 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:myapp/screens/login_screen.dart';
 import 'package:myapp/services/auth_service.dart';
 
-class ProfileTab extends StatelessWidget {
-  final AuthService? authService;
+class ProfileTab extends StatefulWidget {
+  @override
+  _ProfileTabState createState() => _ProfileTabState();
+}
 
-  const ProfileTab({Key? key, this.authService}) : super(key: key);
+class _ProfileTabState extends State<ProfileTab> {
+  late AuthService _authService;
+  String _userName = '';
+  String _userEmail = '';
 
-  void _logout(BuildContext context) async {
+  @override
+  void initState() {
+    super.initState();
+    _initializeAuthService();
+  }
+
+  Future<void> _initializeAuthService() async {
+    _authService = await AuthService.getInstance();
+    // Ambil data user yang sedang login
+    setState(() {
+      _userName = _authService.getName() ?? 'Nama Pengguna';
+      _userEmail = _authService.getEmail() ?? 'user@email.com';
+    });
+  }
+
+  Future<void> _logout(BuildContext context) async {
     try {
-      // Uncomment and implement if using an authentication service
-      // await authService?.signOut();
+      final success = await _authService.signOut();
 
-      // Use Navigator.pushReplacement instead of pushAndRemoveUntil
-      // This ensures a clean transition to the login screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
-        ),
-      );
+      if (success) {
+        // Jika signOut berhasil, navigasi ke login screen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+          (Route<dynamic> route) => false, // Hapus semua route sebelumnya
+        );
+      } else {
+        // Jika signOut gagal
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal keluar. Silakan coba lagi.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     } catch (e) {
-      // Handle logout errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal keluar: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -59,7 +89,7 @@ class ProfileTab extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              'Nama Pengguna',
+              _userName,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -67,7 +97,7 @@ class ProfileTab extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'user@email.com',
+              _userEmail,
               style: TextStyle(
                 color: Colors.grey[600],
               ),
@@ -119,21 +149,31 @@ class ProfileTab extends StatelessWidget {
                       title: Text('Konfirmasi Keluar'),
                       content: Text('Apakah Anda yakin ingin keluar?'),
                       actions: [
-                        TextButton(
-                          child: Text('Batal'),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Tutup dialog
-                          },
-                        ),
-                        ElevatedButton(
-                          child: Text('Keluar'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Tutup dialog
-                            _logout(context); // Panggil method logout
-                          },
+                        OverflowBar(
+                          alignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              minimumSize: Size(120, 40), // Set lebar minimal yang sama
+                            ), 
+                            child: Text('Keluar'),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Tutup dialog
+                              _logout(context); // Panggil method logout
+                            },
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.blue,
+                                minimumSize: Size(120, 40), // Set lebar minimal yang sama
+                              ),
+                              child: Text('Batal'),
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     );

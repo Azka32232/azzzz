@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -21,14 +22,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _initializeAuthService() async {
-    final prefs = await SharedPreferences.getInstance();
-    _authService = AuthService(prefs);
+    _authService = await AuthService.getInstance();
 
     // Cek jika sudah login, langsung ke home
     if (_authService.isLoggedIn()) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/login');
-      });
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/mainmenu');
+      }
     }
   }
 
@@ -39,33 +39,45 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
-        // Simpan data login
-        final success = await _authService.saveLoginData(
+        // Gunakan method login dari AuthService
+        final loginResult = await _authService.login(
           email: _emailController.text,
           password: _passwordController.text,
         );
 
-        if (success) {
-          if (mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('Login berhasil!')));
+        if (mounted) {
+          if (loginResult['success']) {
+            // Tampilkan pesan sukses
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(loginResult['message']),
+                backgroundColor: Colors.green,
+              ),
+            );
 
             // Tunggu sebentar sebelum navigasi
-            await Future.delayed(Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 1));
 
             // Navigate ke home
-            Navigator.pushReplacementNamed(context, '/home');
-          }
-        } else {
-          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/login');
+          } else {
+            // Tampilkan pesan error
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Email atau password salah')));
+              SnackBar(
+                content: Text(loginResult['message']),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       } finally {
         if (mounted) {
@@ -81,21 +93,20 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo atau gambar bisa ditambahkan di sini
-              SizedBox(height: 32),
-
+              const SizedBox(height: 32),
+              
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
@@ -111,10 +122,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              
+              const SizedBox(height: 16),
+              
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.lock),
@@ -130,30 +143,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              
+              const SizedBox(height: 24),
+              
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Login',
+                          style: TextStyle(fontSize: 16),
+                        ),
                 ),
-                child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        'Login',
-                        style: TextStyle(fontSize: 16),
-                      ),
               ),
-              SizedBox(height: 16),
+              
+              const SizedBox(height: 16),
+              
               TextButton(
                 onPressed: _isLoading
                     ? null
                     : () {
                         Navigator.pushNamed(context, '/register');
                       },
-                child: Text('Belum punya akun? Daftar di sini'),
+                child: const Text('Belum punya akun? Daftar di sini'),
               ),
             ],
           ),

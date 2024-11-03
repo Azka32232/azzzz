@@ -47,10 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // Tunggu sebentar sebelum navigasi ke halaman berikutnya
           await Future.delayed(Duration(seconds: 1));
 
-          Navigator.pushReplacementNamed(context, '/login');
+          // Navigate ke halaman home atau login
+          Navigator.pushReplacementNamed(context, '/mainmenu');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Gagal melakukan registrasi. Silakan coba lagi.')));
+          ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('registrasi gagal!')));
         }
       } catch (e) {
         ScaffoldMessenger.of(context)
@@ -69,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Register'),
       ),
       body: SingleChildScrollView(

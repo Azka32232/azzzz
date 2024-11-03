@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/mainmenu_screen.dart';
@@ -8,11 +7,10 @@ import 'services/auth_service.dart';
 void main() async {
   // Pastikan binding diinisialisasi
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inisialisasi SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
-  final authService = AuthService(prefs);
-
+  
+  // Inisialisasi AuthService menggunakan singleton pattern
+  final authService = await AuthService.getInstance();
+  
   runApp(MyApp(authService: authService));
 }
 
@@ -31,13 +29,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        appBarTheme: AppBarTheme(
+        // Konfigurasi tema aplikasi
+        appBarTheme: const AppBarTheme(
           elevation: 0,
           centerTitle: true,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            minimumSize: Size(double.infinity, 50),
+            minimumSize: const Size(double.infinity, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -47,25 +46,30 @@ class MyApp extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
-      // Mengubah initialRoute selalu ke login
+      // Set route awal ke login
       initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/mainmenu': (context) => MainmenuScreen(),
+        '/login': (context) =>  LoginScreen(),
+        '/register': (context) =>  RegisterScreen(),
+        '/mainmenu': (context) =>  MainmenuScreen(),
       },
+      // Handle route yang tidak terdaftar
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
-          builder: (context) => Scaffold(
+          builder: (context) => const Scaffold(
             body: Center(
               child: Text('Halaman tidak ditemukan'),
             ),
           ),
         );
       },
+      // Handler untuk sharing AuthService ke seluruh aplikasi
       builder: (context, child) {
         return _InheritedAuthService(
           authService: authService,
@@ -76,6 +80,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// Widget untuk menyediakan AuthService ke seluruh aplikasi
 class _InheritedAuthService extends InheritedWidget {
   final AuthService authService;
 
@@ -86,8 +91,7 @@ class _InheritedAuthService extends InheritedWidget {
   }) : super(key: key, child: child);
 
   static AuthService of(BuildContext context) {
-    final widget =
-        context.dependOnInheritedWidgetOfExactType<_InheritedAuthService>();
+    final widget = context.dependOnInheritedWidgetOfExactType<_InheritedAuthService>();
     if (widget == null) {
       throw Exception('AuthService not found in context');
     }
@@ -100,6 +104,7 @@ class _InheritedAuthService extends InheritedWidget {
   }
 }
 
+// Extension untuk memudahkan akses AuthService
 extension AuthServiceContext on BuildContext {
   AuthService get authService => _InheritedAuthService.of(this);
 }
